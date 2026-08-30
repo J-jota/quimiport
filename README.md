@@ -36,11 +36,11 @@ Esta fase **não** entrega aplicação funcional, frontend, backend ou banco de 
 
 | Artefato | Descrição |
 |---|---|
-| 📘 Documentação de domínio | Linguagem ubíqua, entidades, objetos de valor, agregados e regras de negócio |
-| 📗 Documentação de casos de uso | Casos de uso planejados com atores, entradas, saídas e exceções |
-| 📙 Documentação de arquitetura | Camadas propostas, decisões arquiteturais (ADRs) e estratégia de evolução |
-| 📊 Diagramas | Diagrama de domínio e fluxo de status da carga (obrigatórios) + casos de uso e camadas |
-| 🧪 Plano de qualidade | Estratégia de testes unitários, integração, mocks e cenários críticos |
+| Documentação de domínio | Linguagem ubíqua, entidades, objetos de valor, agregados e regras de negócio |
+| Documentação de casos de uso | Casos de uso planejados com atores, entradas, saídas e exceções |
+| Documentação de arquitetura | Camadas propostas, decisões arquiteturais (ADRs) e estratégia de evolução |
+| Diagramas | Diagrama de domínio e fluxo de status da carga (obrigatórios) + casos de uso e camadas |
+| Plano de qualidade | Estratégia de testes unitários, integração, mocks e cenários críticos |
 
 ## Navegação pela Documentação
 
@@ -91,7 +91,3 @@ src/
 ## Equipe
 
 Jose Mariano - rm376906
-
-## Licença
-
-Projeto acadêmico — Pós Tech Full Stack Development.
