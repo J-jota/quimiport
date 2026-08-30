@@ -90,7 +90,7 @@ src/
 
 ## Equipe
 
-Preencher com os integrantes do grupo e seus papéis.
+Jose Mariano - rm376906
 
 ## Licença
 
