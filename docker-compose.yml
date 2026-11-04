@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: quimiport-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quimiport
+      POSTGRES_PASSWORD: quimiport
+      POSTGRES_DB: quimiport
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quimiport -d quimiport"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    container_name: quimiport-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://quimiport:quimiport@db:5432/quimiport?schema=public
+      PORT: "3000"
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

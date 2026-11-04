@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ProdutoQuimico {
+  id                   String         @id @default(uuid())
+  nome                 String         @unique
+  descricao            String?
+  numeroOnu            String
+  classeRisco          String
+  grupoCompatibilidade String
+  ativo                Boolean        @default(true)
+  criadoEm             DateTime       @default(now())
+  atualizadoEm         DateTime       @updatedAt
+  cargas               CargaQuimica[]
+
+  @@map("produtos_quimicos")
+}
+
+model ResponsavelTecnico {
+  id                String         @id @default(uuid())
+  nome              String
+  conselho          String
+  numeroRegistro    String
+  especialidade     String?
+  ativo             Boolean        @default(true)
+  criadoEm          DateTime       @default(now())
+  atualizadoEm      DateTime       @updatedAt
+  cargas            CargaQuimica[]
+
+  @@unique([conselho, numeroRegistro])
+  @@map("responsaveis_tecnicos")
+}
+
+model CargaQuimica {
+  id                   String              @id @default(uuid())
+  codigo               String              @unique
+  produtoQuimicoId     String
+  produto              ProdutoQuimico      @relation(fields: [produtoQuimicoId], references: [id])
+  quantidade           Decimal             @db.Decimal(14, 3)
+  unidadeMedida        String
+  classificacaoRisco   String
+  responsavelTecnicoId String
+  responsavel          ResponsavelTecnico  @relation(fields: [responsavelTecnicoId], references: [id])
+  origem               String
+  destino              String
+  status               String
+  dataEntrada          DateTime
+  criadoEm             DateTime            @default(now())
+  atualizadoEm         DateTime            @updatedAt
+  documentos           DocumentoCarga[]
+  inspecoes            Inspecao[]
+  historico            EventoHistorico[]
+
+  @@index([status])
+  @@map("cargas_quimicas")
+}
+
+model DocumentoCarga {
+  id          String        @id @default(uuid())
+  cargaId     String
+  carga       CargaQuimica  @relation(fields: [cargaId], references: [id], onDelete: Cascade)
+  tipo        String
+  numero      String
+  dataEmissao DateTime
+  dataValidade DateTime?
+  validado    Boolean       @default(false)
+  urlArquivo  String?
+
+  @@map("documentos_carga")
+}
+
+model Inspecao {
+  id              String        @id @default(uuid())
+  cargaId         String
+  carga           CargaQuimica  @relation(fields: [cargaId], references: [id], onDelete: Cascade)
+  motivo          String
+  dataSolicitacao DateTime
+  dataConclusao   DateTime?
+  resultado       String
+  inspetor        String?
+
+  @@map("inspecoes")
+}
+
+model EventoHistorico {
+  id             String        @id @default(uuid())
+  cargaId        String
+  carga          CargaQuimica  @relation(fields: [cargaId], references: [id], onDelete: Cascade)
+  dataHora       DateTime
+  statusAnterior String?
+  statusNovo     String
+  ator           String
+  motivo         String
+
+  @@index([cargaId, dataHora])
+  @@map("eventos_historico")
+}
