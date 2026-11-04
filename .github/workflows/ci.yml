@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-e-testes:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: quimiport
+          POSTGRES_PASSWORD: quimiport
+          POSTGRES_DB: quimiport
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quimiport -d quimiport"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://quimiport:quimiport@localhost:5432/quimiport?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar Prisma Client
+        run: npx prisma generate --schema src/infrastructure/persistence/prisma/schema.prisma
+
+      - name: Verificação de compilação (typecheck)
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Testes unitários e e2e
+        run: npm test
+
+      - name: Aplicar migrações no PostgreSQL
+        run: npx prisma migrate deploy --schema src/infrastructure/persistence/prisma/schema.prisma
+
+      - name: Testes de integração (repositórios × PostgreSQL real)
+        run: RUN_DB_TESTS=1 npx vitest run src/tests/integration
