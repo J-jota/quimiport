@@ -2,12 +2,14 @@ import { ResponsavelTecnicoRepository } from '../../../application/ports/Respons
 import { ResponsavelTecnico } from '../../../domain/responsavel/ResponsavelTecnico.js';
 import type { ResponsavelTecnicoId } from '../../../shared/types/branded.js';
 import { prisma } from './client.js';
+import { comTraducaoDeConflito } from './erros.js';
 import { responsavelParaDominio } from './mappers.js';
 
 export class PrismaResponsavelTecnicoRepository implements ResponsavelTecnicoRepository {
   async salvar(responsavel: ResponsavelTecnico): Promise<void> {
     const snapshot = responsavel.toSnapshot();
-    await prisma.responsavelTecnico.upsert({
+    await comTraducaoDeConflito(() =>
+      prisma.responsavelTecnico.upsert({
       where: { id: snapshot.id },
       create: {
         id: snapshot.id,
@@ -27,7 +29,8 @@ export class PrismaResponsavelTecnicoRepository implements ResponsavelTecnicoRep
         ativo: snapshot.ativo,
         atualizadoEm: snapshot.atualizadoEm,
       },
-    });
+      }),
+    );
   }
 
   async buscarPorId(id: ResponsavelTecnicoId): Promise<ResponsavelTecnico | null> {

@@ -3,6 +3,7 @@ import { CargaQuimica } from '../../../domain/carga/CargaQuimica.js';
 import { StatusCarga } from '../../../domain/enums/StatusCarga.js';
 import type { CargaId } from '../../../shared/types/branded.js';
 import { prisma } from './client.js';
+import { comTraducaoDeConflito } from './erros.js';
 import { cargaParaDominio, type CargaRowCompleta } from './mappers.js';
 
 const INCLUDE_AGREGADO = {
@@ -19,7 +20,8 @@ export class PrismaCargaQuimicaRepository implements CargaQuimicaRepository {
   async salvar(carga: CargaQuimica): Promise<void> {
     const snapshot = carga.toSnapshot();
 
-    await prisma.$transaction(async (tx) => {
+    await comTraducaoDeConflito(() =>
+      prisma.$transaction(async (tx) => {
       await tx.cargaQuimica.upsert({
         where: { id: snapshot.id },
         create: {
@@ -90,7 +92,8 @@ export class PrismaCargaQuimicaRepository implements CargaQuimicaRepository {
           })),
         });
       }
-    });
+      }),
+    );
   }
 
   async buscarPorId(id: CargaId): Promise<CargaQuimica | null> {

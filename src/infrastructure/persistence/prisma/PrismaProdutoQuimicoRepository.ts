@@ -2,12 +2,14 @@ import { ProdutoQuimicoRepository } from '../../../application/ports/ProdutoQuim
 import { ProdutoQuimico } from '../../../domain/produto/ProdutoQuimico.js';
 import type { ProdutoQuimicoId } from '../../../shared/types/branded.js';
 import { prisma } from './client.js';
+import { comTraducaoDeConflito } from './erros.js';
 import { produtoParaDominio } from './mappers.js';
 
 export class PrismaProdutoQuimicoRepository implements ProdutoQuimicoRepository {
   async salvar(produto: ProdutoQuimico): Promise<void> {
     const snapshot = produto.toSnapshot();
-    await prisma.produtoQuimico.upsert({
+    await comTraducaoDeConflito(() =>
+      prisma.produtoQuimico.upsert({
       where: { id: snapshot.id },
       create: {
         id: snapshot.id,
@@ -29,7 +31,8 @@ export class PrismaProdutoQuimicoRepository implements ProdutoQuimicoRepository 
         ativo: snapshot.ativo,
         atualizadoEm: snapshot.atualizadoEm,
       },
-    });
+      }),
+    );
   }
 
   async buscarPorId(id: ProdutoQuimicoId): Promise<ProdutoQuimico | null> {
