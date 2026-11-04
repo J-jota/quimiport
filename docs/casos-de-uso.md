@@ -44,7 +44,7 @@ Mapeamento dos casos de uso do QuimiPort. Cada UC referencia as regras de negóc
 | **Objetivo** | Anexar e conferir os documentos obrigatórios da carga |
 | **Ator** | Analista de Documentação |
 | **Entrada** | cargaId, documentos (tipo, número, datas de emissão/validade, arquivo) |
-| **Saída** | Documentos registrados e marcados como validados; carga transiciona para `EM_VALIDACAO` (se estava `REGISTRADA`) |
+| **Saída** | Documentos registrados e marcados como validados; carga transiciona para `EM_ANALISE` (se estava `REGISTRADA`) |
 | **Regras** | RN-04 (preparação), RN-13, RN-14 |
 | **Erros/Exceções** | Carga não encontrada → `NotFoundError`; documento com validade vencida é aceito mas **não conta** para liberação; tipo de documento desconhecido → `DomainError`; carga em status terminal → `DomainError` |
 

@@ -77,13 +77,14 @@ export class CargaQuimica {
 ```typescript
 // domain/enums/StatusCarga.ts
 export enum StatusCarga {
-  REGISTRADA   = 'REGISTRADA',
-  EM_VALIDACAO = 'EM_VALIDACAO',
-  EM_INSPECAO  = 'EM_INSPECAO',
-  LIBERADA     = 'LIBERADA',
-  BLOQUEADA    = 'BLOQUEADA',
-  CANCELADA    = 'CANCELADA',
-  FINALIZADA   = 'FINALIZADA',
+  REGISTRADA      = 'REGISTRADA',
+  EM_ANALISE      = 'EM_ANALISE',
+  EM_INSPECAO     = 'EM_INSPECAO',
+  LIBERADA        = 'LIBERADA',
+  BLOQUEADA       = 'BLOQUEADA',
+  EM_MOVIMENTACAO = 'EM_MOVIMENTACAO',
+  FINALIZADA      = 'FINALIZADA',
+  CANCELADA       = 'CANCELADA',
 }
 
 export enum ClasseRisco {
@@ -108,14 +109,15 @@ Validações determinísticas (sem efeitos colaterais) como funções puras — 
 ```typescript
 // domain/carga/StatusCargaMachine.ts (conceitual)
 const TRANSICOES: Readonly<Record<StatusCarga, readonly StatusCarga[]>> = {
-  [StatusCarga.REGISTRADA]:   [StatusCarga.EM_VALIDACAO, StatusCarga.CANCELADA],
-  [StatusCarga.EM_VALIDACAO]: [StatusCarga.LIBERADA, StatusCarga.EM_INSPECAO,
-                               StatusCarga.BLOQUEADA, StatusCarga.CANCELADA],
-  [StatusCarga.EM_INSPECAO]:  [StatusCarga.LIBERADA, StatusCarga.BLOQUEADA, StatusCarga.CANCELADA],
-  [StatusCarga.BLOQUEADA]:    [StatusCarga.EM_VALIDACAO, StatusCarga.CANCELADA],
-  [StatusCarga.LIBERADA]:     [StatusCarga.FINALIZADA],
-  [StatusCarga.CANCELADA]:    [], // terminal
-  [StatusCarga.FINALIZADA]:   [], // terminal
+  [StatusCarga.REGISTRADA]:      [StatusCarga.EM_ANALISE, StatusCarga.CANCELADA],
+  [StatusCarga.EM_ANALISE]:      [StatusCarga.EM_INSPECAO, StatusCarga.LIBERADA,
+                                  StatusCarga.BLOQUEADA, StatusCarga.CANCELADA],
+  [StatusCarga.EM_INSPECAO]:     [StatusCarga.LIBERADA, StatusCarga.BLOQUEADA, StatusCarga.CANCELADA],
+  [StatusCarga.BLOQUEADA]:       [StatusCarga.EM_ANALISE, StatusCarga.CANCELADA],
+  [StatusCarga.LIBERADA]:        [StatusCarga.EM_MOVIMENTACAO, StatusCarga.CANCELADA],
+  [StatusCarga.EM_MOVIMENTACAO]: [StatusCarga.FINALIZADA],
+  [StatusCarga.CANCELADA]:       [], // terminal
+  [StatusCarga.FINALIZADA]:      [], // terminal
 } as const;
 
 export function validarTransicao(origem: StatusCarga, destino: StatusCarga): void {

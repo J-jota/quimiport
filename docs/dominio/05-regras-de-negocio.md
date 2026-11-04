@@ -38,18 +38,21 @@ Catálogo das regras de negócio do QuimiPort, com identificador único (RN-XX) 
 
 Transições válidas (detalhe visual em [`diagramas/fluxo-status-carga.md`](../diagramas/fluxo-status-carga.md)):
 
+> **Fase 2:** `EM_VALIDACAO` passou a se chamar `EM_ANALISE` e o estado `EM_MOVIMENTACAO` foi incluído entre `LIBERADA` e `FINALIZADA`, conforme o enunciado da Fase 2 (ADR-011).
+
 | De | Para | Gatilho | Condição |
 |---|---|---|---|
 | *(início)* | REGISTRADA | Registrar carga | RN-01, 02, 03, 11, 12 |
-| REGISTRADA | EM_VALIDACAO | Iniciar validação documental | — |
-| EM_VALIDACAO | LIBERADA | Liberar carga | RN-04 |
-| EM_VALIDACAO | EM_INSPECAO | Solicitar inspeção | — |
-| EM_VALIDACAO | BLOQUEADA | Bloquear | motivo obrigatório |
+| REGISTRADA | EM_ANALISE | Iniciar análise documental | — |
+| EM_ANALISE | LIBERADA | Liberar carga | RN-04 |
+| EM_ANALISE | EM_INSPECAO | Solicitar inspeção | — |
+| EM_ANALISE | BLOQUEADA | Bloquear | motivo obrigatório |
 | EM_INSPECAO | LIBERADA | Liberar após inspeção | inspeção APROVADA + RN-04 |
 | EM_INSPECAO | BLOQUEADA | Inspeção reprovada ou bloqueio manual | RN-15 |
-| BLOQUEADA | EM_VALIDACAO | Desbloquear (regularizar pendência) | motivo obrigatório |
-| LIBERADA | FINALIZADA | Concluir movimentação | RN-07 |
-| REGISTRADA / EM_VALIDACAO / EM_INSPECAO / BLOQUEADA | CANCELADA | Cancelar carga | RN-16 |
+| BLOQUEADA | EM_ANALISE | Desbloquear (regularizar pendência) | motivo obrigatório |
+| LIBERADA | EM_MOVIMENTACAO | Iniciar movimentação | — |
+| EM_MOVIMENTACAO | FINALIZADA | Concluir movimentação | RN-07 |
+| REGISTRADA / EM_ANALISE / EM_INSPECAO / BLOQUEADA / LIBERADA | CANCELADA | Cancelar carga | RN-16 |
 | *(qualquer terminal)* | — | CANCELADA e FINALIZADA são terminais | RN-06, RN-16 |
 
 ## 5.5 Onde as regras moram na arquitetura (decisão-chave)

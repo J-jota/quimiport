@@ -83,3 +83,33 @@ Registro das principais decisões tomadas pelo grupo, no formato **ADR** (Archit
 - **Consequências:**
   - ✅ Feedback em segundos para regras críticas;
   - ✅ Mocks concentrados nas portas (interfaces), não em detalhes de implementação.
+
+## ADR-009 — PostgreSQL com Prisma como persistência da Fase 2
+
+- **Status:** Aceita
+- **Contexto:** A Fase 2 exige banco de dados com persistência de produtos, cargas e a associação entre eles. O enunciado sugere PostgreSQL ou MongoDB.
+- **Decisão:** PostgreSQL (relacional) com Prisma ORM. Justificativa: o domínio é relacional por natureza (carga → produto, carga → responsável; entidades internas do agregado em tabelas próprias com FK e cascade); a consistência transacional do agregado `CargaQuimica` (ADR-003) é garantida com transações ACID; migrações versionadas (`prisma migrate`) facilitam a evolução nas próximas fases. O Prisma fica confinado em `infrastructure/persistence`, implementando as portas da aplicação — trocar de ORM/banco não toca domínio nem casos de uso.
+- **Consequências:**
+  - ✅ Integridade referencial e transações reais na fronteira do agregado;
+  - ✅ Migrações versionadas e reproduzíveis (CI e Docker);
+  - ⚠️ Exige mapeadores linha ↔ agregado (custo aceito; reconstituição sem revalidação).
+
+## ADR-010 — Fastify como framework HTTP
+
+- **Status:** Aceita
+- **Contexto:** O enunciado permite Express, Fastify ou NestJS com justificativa. A arquitetura prevê camada HTTP fina sobre os casos de uso (ADR-007) — frameworks opinativos (NestJS) duplicariam estrutura de camadas que já existe.
+- **Decisão:** Fastify. Justificativa: validação de formato na borda via JSON Schema nativo (sem dependência extra), logger estruturado (pino) embutido, integração oficial com Swagger (`@fastify/swagger` + `@fastify/swagger-ui`), e modelo de plugins que mantém controllers finos delegando aos casos de uso.
+- **Consequências:**
+  - ✅ Validação de entrada (400) separada da validação de negócio (422), como prevê a regra de borda;
+  - ✅ Documentação OpenAPI gerada dos próprios schemas de rota;
+  - ⚠️ Equipe precisa conhecer o ciclo de vida de plugins/hooks do Fastify (curva pequena).
+
+## ADR-011 — Alinhamento da máquina de estados ao enunciado da Fase 2
+
+- **Status:** Aceita
+- **Contexto:** A Fase 1 modelou 7 estados (`EM_VALIDACAO`, sem `EM_MOVIMENTACAO`). O enunciado da Fase 2 define 8 estados com fluxo principal `Registrada → Em análise → Em inspeção → Liberada → Em movimentação → Finalizada` e transição `Liberada → Cancelada`.
+- **Decisão:** O enunciado da Fase 2 prevalece: `EM_VALIDACAO` renomeado para `EM_ANALISE`; `EM_MOVIMENTACAO` adicionado entre `LIBERADA` e `FINALIZADA`; `LIBERADA → CANCELADA` permitida. Mantidos da Fase 1: desbloqueio `BLOQUEADA → EM_ANALISE` (T8) e bloqueio automático por inspeção reprovada (RN-15). Documentos da Fase 1 atualizados com nota de supersessão.
+- **Consequências:**
+  - ✅ Conformidade direta com o que será avaliado;
+  - ✅ Máquina de estados única e auditável preservada (ADR-006) — mudança em um só lugar;
+  - ⚠️ Documentação da Fase 1 divergente foi sincronizada nesta fase.

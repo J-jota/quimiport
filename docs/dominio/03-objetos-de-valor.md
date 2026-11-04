@@ -19,7 +19,7 @@ Objetos de valor são **imutáveis**, sem identidade própria, e se definem **pe
 - **Uso:** identificação regulatória da substância
 
 ### `StatusCarga` (enum)
-- **Valores:** `REGISTRADA`, `EM_VALIDACAO`, `EM_INSPECAO`, `LIBERADA`, `BLOQUEADA`, `CANCELADA`, `FINALIZADA`
+- **Valores:** `REGISTRADA`, `EM_ANALISE`, `EM_INSPECAO`, `LIBERADA`, `BLOQUEADA`, `EM_MOVIMENTACAO`, `FINALIZADA`, `CANCELADA` *(Fase 2: `EM_VALIDACAO` renomeado para `EM_ANALISE`; `EM_MOVIMENTACAO` adicionado)*
 - **Uso:** estado atual da carga; transições válidas definidas na máquina de estados (ver `diagramas/fluxo-status-carga.md`)
 
 ### `TipoDocumento` (enum)
